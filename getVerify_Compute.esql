@@ -1,0 +1,88 @@
+CREATE COMPUTE MODULE PrepareWSCall
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+		DECLARE documentNumber integer;
+		Set documentNumber = InputLocalEnvironment.HTTP.Input.QueryString.documentNumber;
+		SET OutputLocalEnvironment.Destination.HTTP.RequestLine.Method = 'GET';		
+		SET OutputLocalEnvironment.Destination.HTTP.RequestURL = 'https://still-hollows-07464.herokuapp.com/api/verify/' || CAST(documentNumber as character);
+		--SET OutputLocalEnvironment.Destination.HTTP.RequestURL = 'http://localhost:5000/api/verify/' || CAST(documentNumber as character);
+				
+	--SET OutputRoot.XMLNSC.Cuerpo = ' Prueba 2';
+		
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+
+
+
+CREATE COMPUTE MODULE PrepareResponse
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+
+		SET OutputRoot.JSON.Data.exist = InputRoot.JSON.Data.exist;
+		SET OutputRoot.JSON.Data.voter = InputRoot.JSON.Data.voter;
+		SET OutputRoot.JSON.Data.documentNumber = InputRoot.JSON.Data.documentNumber;
+
+
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+
+
+
+CREATE COMPUTE MODULE getVerify_PrepareLog
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+		set OutputRoot.BLOB.BLOB = CAST(InputRoot.JSON.Data as BLOB CCSID 1208);
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+
